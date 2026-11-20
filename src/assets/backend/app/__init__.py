@@ -34,9 +34,7 @@ def create_app(config=None, *, database=None, ai_client=None, transcription=None
     if database is None:
         database = create_database(app.config)
         database["users"].create_index("email", unique=True)
-        database["verif_codes"].create_index("email", unique=True)
-        database["verif_codes"].create_index("expires_at", expireAfterSeconds=0)
-        database["auth_limits"].create_index("expires_at", expireAfterSeconds=0)
+        VerificationRepository(database).ensure_indexes()
     if ai_client is None:
         ai_client = create_client(app.config)
     if transcription is None:

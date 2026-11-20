@@ -29,14 +29,14 @@ class SecurityTests(unittest.TestCase):
     def test_signup_rejects_weak_password_before_consuming_code(self):
         for password in ('x', '', 'a' * 129, {'$ne': None}):
             self.assertEqual(self.signup(password=password).status_code, 400)
-        self.database['verif_codes'].find_one_and_delete.assert_not_called()
+        self.database['verification_challenges'].find_one_and_delete.assert_not_called()
 
     def test_code_consumption_is_atomic_and_cannot_be_replayed(self):
-        self.database['verif_codes'].find_one_and_delete.side_effect = [{"email": EMAIL}, None]
+        self.database['verification_challenges'].find_one_and_delete.side_effect = [{"email": EMAIL}, None]
         self.assertEqual(self.signup().status_code, 200)
         self.assertEqual(self.signup().status_code, 400)
         self.assertEqual(self.database['users'].insert_one.call_count, 1)
-        query = self.database['verif_codes'].find_one_and_delete.call_args.args[0]
+        query = self.database['verification_challenges'].find_one_and_delete.call_args.args[0]
         self.assertEqual(query['email'], EMAIL)
         self.assertEqual(query['code_hash'], self.app.extensions['promptly']['auth'].code_hash(EMAIL, '123456'))
         self.assertIsInstance(query['expires_at']['$gt'], datetime)
@@ -44,7 +44,7 @@ class SecurityTests(unittest.TestCase):
     def test_expired_or_legacy_code_is_rejected(self):
         auth = self.app.extensions['promptly']['auth']
         for record in ({'code': '123456'}, {'code_hash': auth.code_hash(EMAIL, '123456'), 'expires_at': datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=1)}):
-            self.database['verif_codes'].find_one.return_value = record
+            self.database['verification_challenges'].find_one.return_value = record
             self.assertFalse(auth.verify_code(EMAIL, '123456'))
 
     def test_malformed_login_data_cannot_be_used_as_mongo_operators(self):
@@ -106,6 +106,24 @@ class SecurityTests(unittest.TestCase):
         response = self.request('POST', '/api/save_voice_message', data=b'x' * 101, content_type='application/octet-stream')
         self.assertEqual(response.status_code, 413)
         self.transcription.transcribe.assert_not_called()
+
+    def test_startup_does_not_index_or_modify_duplicate_legacy_codes(self):
+        from pymongo.errors import DuplicateKeyError
+
+        names = ('users', 'verif_codes', 'verification_challenges', 'auth_limits')
+        collections = {name: MagicMock(name=name) for name in names}
+        database = MagicMock()
+        database.__getitem__.side_effect = collections.__getitem__
+        collections['verif_codes'].create_index.side_effect = DuplicateKeyError('legacy duplicate emails')
+        with patch('app.create_database', return_value=database):
+            app = create_app({'TOKEN_SECRET': SECRET}, ai_client=MagicMock(),
+                             transcription=MagicMock(), mailer=MagicMock(),
+                             catalog_provider=MagicMock())
+        self.assertEqual(app.test_client().get('/api/server_health').status_code, 200)
+        self.assertEqual(collections['verif_codes'].mock_calls, [])
+        collections['verification_challenges'].create_index.assert_any_call('email', unique=True)
+        collections['verification_challenges'].create_index.assert_any_call('expires_at', expireAfterSeconds=0)
+        collections['auth_limits'].create_index.assert_called_once_with('expires_at', expireAfterSeconds=0)
 
     def test_weak_signing_secrets_fail_before_database_creation(self):
         for secret in (None, '', 'short', 'replace-with-a-random-token-signing-secret'):

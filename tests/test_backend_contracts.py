@@ -40,7 +40,7 @@ class BackendContracts(unittest.TestCase):
         self.addCleanup(self.environment.stop)
         self.database = MagicMock()
         self.collections = {name: MagicMock(name=name) for name in (
-            "users", "chats", "messages", "models", "verif_codes", "voice_messages", "meta", "last_models_updates", "auth_limits",
+            "users", "chats", "messages", "models", "verification_challenges", "voice_messages", "meta", "last_models_updates", "auth_limits",
         )}
         self.database.__getitem__.side_effect = self.collections.__getitem__
         self.database["users"].find_one.return_value = None
@@ -49,9 +49,9 @@ class BackendContracts(unittest.TestCase):
         self.database["chats"].delete_one.return_value.deleted_count = 1
         self.database["models"].find.return_value = []
         self.database["models"].find_one.return_value = None
-        self.database["verif_codes"].find_one.return_value = None
+        self.database["verification_challenges"].find_one.return_value = None
         self.database["auth_limits"].find_one_and_update.return_value = {"count": 1}
-        self.database["verif_codes"].find_one_and_delete.return_value = None
+        self.database["verification_challenges"].find_one_and_delete.return_value = None
         self.ai = MagicMock()
         self.transcription = MagicMock()
         self.transcription.transcribe.return_value = SimpleNamespace(status="completed", text="Voice text")
@@ -249,7 +249,7 @@ class BackendContracts(unittest.TestCase):
         events = []
         self.database["users"].insert_one.side_effect = lambda doc: (events.append("user") or SimpleNamespace(inserted_id=ObjectId(USER)))
         self.database["chats"].insert_one.side_effect = lambda doc: events.append("chat")
-        self.database["verif_codes"].find_one_and_delete.return_value = {"email": EMAIL}
+        self.database["verification_challenges"].find_one_and_delete.return_value = {"email": EMAIL}
         response = self.http.post("/api/sign_up", json={"email": EMAIL, "password": "new-password-long", "code": "123456"})
         self.assert_response(response, 200, {"confirmed": True})
         document = self.database["users"].insert_one.call_args.args[0]
@@ -289,14 +289,14 @@ class BackendContracts(unittest.TestCase):
         self.assertEqual(events, [("messages", {"user_id": ObjectId(USER)}),
                                   ("chats", {"user_id": ObjectId(USER)}), ("users", {"_id": ObjectId(USER)})])
         self.database["voice_messages"].delete_many.assert_called_once_with({"user_id": ObjectId(USER)})
-        self.database["verif_codes"].delete_many.assert_not_called()
+        self.database["verification_challenges"].delete_many.assert_not_called()
 
     def test_sending_verification_code_stores_it_before_sending_email(self):
         events = []
-        self.database["verif_codes"].update_one.side_effect = lambda *args, **kwargs: events.append("stored")
+        self.database["verification_challenges"].update_one.side_effect = lambda *args, **kwargs: events.append("stored")
         self.mailer.send_verification_email.side_effect = lambda *args: (events.append("sent") or 202)
         self.assert_response(self.http.post("/api/send_code", json={"email": EMAIL}), 200, {"message": "Code sent!"})
-        query, update = self.database["verif_codes"].update_one.call_args.args
+        query, update = self.database["verification_challenges"].update_one.call_args.args
         self.assertEqual(query["email"], EMAIL)
         self.assertIsInstance(update["$set"]["sent_at"], datetime)
         code = self.mailer.send_verification_email.call_args.args[1]
@@ -304,7 +304,7 @@ class BackendContracts(unittest.TestCase):
         self.assertEqual(len(code), 6)
         self.assertNotIn("code", update["$set"])
         self.assertEqual(update["$set"]["code_hash"], self.app.extensions["promptly"]["auth"].code_hash(EMAIL, code))
-        self.assertEqual(self.database["verif_codes"].update_one.call_args.kwargs, {"upsert": True})
+        self.assertEqual(self.database["verification_challenges"].update_one.call_args.kwargs, {"upsert": True})
         self.mailer.send_verification_email.assert_called_once_with(EMAIL, code)
         self.assertEqual(events, ["stored", "sent"])
 
@@ -312,23 +312,23 @@ class BackendContracts(unittest.TestCase):
         self.mailer.send_verification_email.return_value = None
         self.assert_response(self.http.post("/api/send_code", json={"email": EMAIL}),
                              503, {"error": "Failed to send email"})
-        self.database["verif_codes"].update_one.assert_called_once()
+        self.database["verification_challenges"].update_one.assert_called_once()
 
     def test_sending_a_code_for_an_existing_user_does_not_write_or_send(self):
         self.existing_user()
         self.assert_response(self.http.post("/api/send_code", json={"email": EMAIL}),
                              409, {"error": "Email already used"})
-        self.database["verif_codes"].update_one.assert_not_called()
+        self.database["verification_challenges"].update_one.assert_not_called()
         self.mailer.send_verification_email.assert_not_called()
 
     def test_code_verification_reads_the_latest_code_without_removing_it(self):
-        self.database["verif_codes"].find_one.return_value = {"code_hash": self.app.extensions["promptly"]["auth"].code_hash(EMAIL, "123456"), "expires_at": datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=10)}
+        self.database["verification_challenges"].find_one.return_value = {"code_hash": self.app.extensions["promptly"]["auth"].code_hash(EMAIL, "123456"), "expires_at": datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=10)}
         self.assert_response(self.http.post("/api/verify_code", json={"email": EMAIL, "code": "123456"}),
                              200, {"verified": True})
-        self.database["verif_codes"].find_one.assert_called_with({"email": EMAIL}, sort=[("sent_at", -1)])
+        self.database["verification_challenges"].find_one.assert_called_with({"email": EMAIL}, sort=[("sent_at", -1)])
         self.assert_response(self.http.post("/api/verify_code", json={"email": EMAIL, "code": "wrong"}),
                              400, {"verified": False})
-        self.database["verif_codes"].delete_one.assert_not_called()
+        self.database["verification_challenges"].delete_one.assert_not_called()
 
     def test_catalog_list_and_legacy_details_keep_their_shapes(self):
         model = {"id": "test/model:free", "name": "Test", "top_provider": {"max_completion_tokens": 4096}}

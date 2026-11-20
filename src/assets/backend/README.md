@@ -19,7 +19,7 @@ Services do not import Flask. Repositories receive their database through the fa
 
 ## Authentication contract
 
-`POST /api/send_code` sends a six-digit code. `POST /api/verify_code` can check validity, but does not authorize signup. `POST /api/sign_up` must include `email`, a 12-128 character `password`, and `code`; it atomically consumes the unexpired challenge. Codes expire after ten minutes and only their HMAC hashes are stored.
+`POST /api/send_code` sends a six-digit code. `POST /api/verify_code` can check validity, but does not authorize signup. `POST /api/sign_up` must include `email`, a 12-128 character `password`, and `code`; it atomically consumes the unexpired challenge. Codes expire after ten minutes and only their HMAC hashes are stored in `verification_challenges`. The legacy `verif_codes` collection is left untouched and is not used by the new flow, so duplicate historical codes do not prevent startup.
 
 `POST /api/sign_in` returns an HS256 JWT with a one-hour expiry. Protected routes require `Authorization: Bearer <token>`. Non-expiring legacy tokens are rejected. Failed login responses are generic; other validation and authorization failures use HTTP 4xx responses.
 
