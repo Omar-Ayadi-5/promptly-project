@@ -1,0 +1,581 @@
+  /* Reset & Base */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e1e;
+    color: #fff;
+    overflow: hidden;
+    /* Prevent double scroll */
+}
+
+/* Layout */
+main {
+    max-width: 100%;
+    margin: auto;
+    padding-top: 100px;
+    /* For header */
+    padding-bottom: 140px;
+    /* For footer */
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    /* allow scroll */
+}
+
+/* Header Layout */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background-color: #1e1e1e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 10px 20px;
+    z-index: 1000;
+    border-bottom: 1px solid #3b3b3b;
+}
+
+.header-left {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Delete Button */
+header button {
+    background-color: #2c2c2c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+/* Profile Image */
+header img.profile {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+/* Hide Divider since header has bottom border */
+hr {
+    display: none;
+}
+
+/* Scrollable Chat Area - renamed from .chat-container */
+.chat-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+
+    /* No background color set */
+}
+
+/* Chat section */
+section {
+    margin-top: 20px;
+    padding-right: 5px;
+}
+
+#chat {
+    text-align: center;
+    margin-right: 70px;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+#chat p:first-child {
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+}
+
+#chat p:last-child {
+    color: white;
+    line-height: 1.5;
+}
+
+/* Footer Fixed */
+footer {
+    bottom: 20px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    min-height: 80px;
+    background-color: #1e1e1e;
+    padding: 15px 20px;
+    z-index: 1000;
+    border-top: 1px solid #3b3b3b;
+    display: flex;
+    align-items: flex-end;
+}
+
+
+/* === Scrollbar Styling for .chat-scroll === */
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+.chat-scroll::-webkit-scrollbar {
+    width: 12px;
+    /* Width of vertical scrollbar */
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+    background: #2e2e2e;
+    /* Slightly darker grey track */
+    border-radius: 6px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+    background-color: grey;
+    /* Scrollbar color */
+    border-radius: 6px;
+    border: 3px solid #2e2e2e;
+    /* Creates padding effect */
+}
+
+/* Firefox */
+.chat-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: grey #2e2e2e;
+}
+
+/* Sidebar Styling */
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 250px;
+    height: calc(100vh - 160px);
+    background-color: #2c2c2c;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    transform: translateX(-100%);
+}
+
+/* Only show when .slide-in is added */
+.slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.slide-out {
+    animation: slideOut 0.3s ease-in forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+
+.new_delete-chat-button {
+    background-color: #444;
+    padding: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.new_delete-chat-button p {
+    margin: 5px;
+}
+
+.chat-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.chat-button {
+    background-color: #3e3e3e;
+    color: white;
+    padding: 10px 16px;
+    margin-bottom: 8px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    width: calc(100%);
+    font-size: 15px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.chat-button:hover {
+    background-color: #505050;
+}
+
+/* Model selector component */
+
+.model-selector {
+    margin: 10px 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.model-selector label {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.model-selector select {
+    background-color: #2c2c2c;
+    color: #fff;
+    padding: 8px 12px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    transition: border 0.2s ease;
+}
+
+.model-selector select:hover {
+    border-color: #666;
+}
+
+.model-selector select:focus {
+    border-color: #888;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+/* chat history */
+
+.chat-item-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.delete-icon {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: 5px;
+}
+
+.chat-container {
+    display: flex;
+    align-items: flex-end;
+    background-color: #1e1e1e;
+    padding: 10px;
+    gap: 10px;
+    height: 100%;
+
+}
+
+.chat-textarea {
+    flex: 1;
+    resize: none;
+    background-color: #2c2c2c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+    max-height: calc(1.5em * 4 + 20px);
+    /* max 4 lines + padding */
+    overflow-y: auto;
+    line-height: 1.5em;
+    min-height: 45px;
+    /* roughly 1 line + padding */
+    transition: height 0.2s ease;
+}
+
+/* Buttons */
+.icon-button {
+    background-color: #2c2c2c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tools-button span {
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+.send-button {
+    background-color: #3e3e3e;
+}
+
+.send-button:hover {
+    background-color: #505050;
+}
+
+/* models nav styling */
+.models-nav {
+    position: fixed;
+    top: 80px;
+    right: 0;
+    width: 450px;
+    height: calc(100vh - 190px);
+    background-color: #2c2c2c;
+    color: white;
+    padding: 20px;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    transform: translateX(100%);
+}
+
+.models-slide-in {
+    animation: modelsSlideIn 0.3s ease-out forwards;
+}
+
+.models-slide-out {
+    animation: modelsSlideOut 0.3s ease-in forwards;
+}
+
+@keyframes modelsSlideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes modelsSlideOut {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+.models-nav label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.model-param {
+    margin: 12px 0;
+}
+
+.models-nav input[type="range"] {
+    width: 100%;
+}
+
+.apply-btn {
+    margin-top: 20px;
+    padding: 8px;
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.confirmation-msg {
+    margin-top: 10px;
+    color: #4caf50;
+    font-size: 0.9rem;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/*styling messages in the body*/
+
+.message {
+    max-width: 800px;
+    margin: 12px auto;
+    padding: 16px 20px;
+    border-radius: 12px;
+    line-height: 1.6;
+    font-size: 16px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    text-align: left;
+    transition: background-color 0.3s ease;
+    border: 1px solid #3e3e3e;
+}
+
+.message.user {
+    background-color: #2c2c2c;
+    color: white;
+    align-self: flex-end;
+    border: 1px solid #3e3e3e;
+}
+
+.message.assistant {
+    background-color: #3a3a3a;
+    color: #e4e4e4;
+    border-left: 4px solid #00c77f;
+}
+
+.message h4 {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+.message ul {
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.message li {
+    list-style-type: "• ";
+    margin: 5px 0;
+}
+
+.message strong {
+    color: #00ffae;
+    font-weight: 600;
+}
+/* Product layout: panels stay within the viewport on desktop and mobile. */
+:root { color-scheme: dark; }
+button, input, textarea, select { font-family: inherit; }
+button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #bcebcf; outline-offset: 4px; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.workspace { background: #171c1a; height: 100dvh; overflow: hidden; padding: 80px 24px 125px; }
+.workspace header { background: #171f1d; border-color: #34433a; height: 72px; padding: 12px 24px; }
+.workspace header button { background: #26362d; border-radius: 9px; min-height: 42px; }
+.workspace header img.profile { width: 32px; height: 32px; border: 1px solid #759784; }
+.workspace .header-left { font-size: 22px; letter-spacing: -.7px; }
+.workspace .chat-scroll { min-height: 0; padding: 16px 0 24px; }
+.workspace.sidebar-open .chat-scroll { margin-left: 250px; }
+.workspace #chat { margin: 0 auto; width: 100%; max-width: 850px; padding: 16px; }
+.workspace .sidebar { top: 72px; height: calc(100dvh - 72px); background: #1c2620; border-right: 1px solid #34433a; box-shadow: none; padding: 20px 14px; }
+.workspace .new_delete-chat-button { background: #29392f; border: 1px solid #3d5245; border-radius: 8px; }
+.workspace .chat-button { background: transparent; border-radius: 8px; }
+.workspace .chat-button:hover { background: #29392f; }
+.workspace footer { background: #171c1a; border: none; bottom: 0; min-height: 100px; padding: 14px 24px 24px; }
+.workspace.sidebar-open footer { left: 250px; }
+.workspace .message { background: #222d26; border: 1px solid #35483b; box-shadow: none; text-align: left; }
+.workspace .message.assistant { background: #1b241f; border-left: 3px solid #bcebcf; }
+.workspace .message h4 { color: #bcebcf; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.workspace .message p { margin: 8px 0; }
+.workspace .message pre { overflow-x: auto; padding: 16px; background: #101a14; border-radius: 8px; white-space: pre; }
+.workspace .message code { font-size: .88em; }
+.workspace .models-nav { top: 72px; width: min(410px, 100vw); height: calc(100dvh - 72px); max-height: none; background: #1f2b23; padding: 24px; z-index: 1100; box-shadow: -8px 0 32px #0005; }
+.workspace .models-nav h3 { font-size: 16px; color: #d4e9db; }
+.workspace .models-nav p { color: #b0c3b7; line-height: 1.7; font-size: 13px; }
+.workspace .apply-btn, .primary-action { background: #bcebcf; color: #182b22; border: 0; padding: 13px 20px; border-radius: 8px; font-weight: 650; cursor: pointer; }
+.workspace input[type=range] { accent-color: #bcebcf; }
+.welcome-state { margin: clamp(24px, 10vh, 100px) auto 0; max-width: 700px; }
+.welcome-state h1 { font-size: clamp(28px, 3.5vw, 42px); letter-spacing: -1.4px; font-weight: 550; margin: 18px 0; line-height: 1.2; }
+.welcome-state > p { color: #9eb6a6 !important; font-size: 15px; }
+.welcome-state .primary-action { margin-top: 24px; }
+.welcome-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 56px; text-align: left; }
+.welcome-features > div { border: 1px solid #35483b; padding: 18px; border-radius: 10px; }
+.welcome-features strong { color: #d8e9de; display: block; font-size: 12px; margin-bottom: 8px; }
+.welcome-features span { color: #91a799; font-size: 12px; line-height: 1.7; }
+.profile-dropdown { background: #26372c; border-color: #4b6555; }
+.profile-dropdown button { width: 100%; padding: 10px 16px; background: none; border: 0; color: #d8e9de; text-align: left; cursor: pointer; }
+.profile-dropdown button:hover { background: #34483c; }
+.modal-box { width: min(460px, calc(100vw - 32px)); min-width: 0; background: #1e2c23; border: 1px solid #405b49; }
+.modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+.modal-box .modal-cancel { background: transparent; color: #c5d9cc; border: 1px solid #486050; }
+.profile-container, .settings-container { width: min(500px, calc(100vw - 32px)); }
+@media (max-width: 899px) {
+  .workspace.sidebar-open .chat-scroll { margin-left: 0; }
+  .workspace.sidebar-open footer { left: 0; }
+  .workspace .sidebar { width: min(280px, 85vw); z-index: 1090; box-shadow: 10px 0 30px #0008; }
+  .workspace { padding-left: 8px; padding-right: 8px; }
+  .workspace header { padding-left: 14px; padding-right: 14px; }
+  .workspace footer { padding: 10px 10px 18px; }
+  .workspace #chat { padding: 10px; }
+  .welcome-features { grid-template-columns: 1fr; margin-top: 28px; }
+  .welcome-features > div { padding: 12px 16px; }
+  .welcome-state { margin-top: 28px; }
+}
+
+@media (min-width: 1200px) { .workspace.parameters-open .chat-scroll { margin-right: 410px; } .workspace.parameters-open footer { right: 410px; } }

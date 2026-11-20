@@ -1,0 +1,51 @@
+# Local environment files; publish templates only.
+.env
+.env.*
+.envrc
+!.env.example
+!.env.*.example
+
+# Credentials and private keys.
+.aws/
+.ssh/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies and generated builds. Keep manifests and lockfiles tracked.
+node_modules/
+.venv/
+venv/
+env/
+ENV/
+dist/
+dist-ssr/
+build/
+.vite/
+*.egg-info/
+
+# Python caches and test output.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+.coverage.*
+coverage/
+htmlcov/
+
+# Logs and local editor/OS files.
+logs/
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~

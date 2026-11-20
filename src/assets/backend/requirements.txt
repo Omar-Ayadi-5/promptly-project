@@ -1,0 +1,16 @@
+# Direct dependencies, with all transitive versions constrained by the lockfile.
+-c requirements-lock.txt
+Flask==3.1.3
+pymongo==4.15.5
+flask-cors==6.0.5
+dnspython==2.2.1
+python-dotenv==1.2.4
+requests==2.34.2
+Werkzeug==3.1.9
+PyJWT==2.15.1
+openai==3.39.0
+assemblyai==1.8.2
+sendgrid==6.12.5
+gunicorn==26.2.0
+certifi==2026.10.23
+httpx==0.28.1
